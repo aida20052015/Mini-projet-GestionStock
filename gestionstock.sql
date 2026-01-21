@@ -1,39 +1,33 @@
-## 1️⃣ Création et utilisation de la base de données
+-- =====================================================
+-- 1) Création et utilisation de la base de données
+-- =====================================================
 
-```sql
 CREATE DATABASE GestionStock
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_general_ci;
-```
 
-```sql
 USE GestionStock;
-```
-Création des tables (schéma)
 
-### 🔹 Table `typeProduit`
+-- =====================================================
+-- 2) Création des tables
+-- =====================================================
 
-```sql
+-- Table typeProduit
 CREATE TABLE typeProduit (
     id_type INT AUTO_INCREMENT PRIMARY KEY,
     libelle VARCHAR(50) NOT NULL
 );
-```
 
-```sql
 INSERT INTO typeProduit (libelle) VALUES
 ('alimentation'),
 ('périphérique'),
 ('matériel portable'),
 ('switch'),
 ('réseau');
-```
 
----
+-- -----------------------------------------------------
 
-### 🔹 Table `produit`
-
-```sql
+-- Table produit
 CREATE TABLE produit (
     id_produit INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
@@ -45,34 +39,26 @@ CREATE TABLE produit (
         ON UPDATE CASCADE
         ON DELETE RESTRICT
 );
-```
 
----
+-- -----------------------------------------------------
 
-### 🔹 Table `user`
-
-```sql
+-- Table user
 CREATE TABLE user (
     id_user INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(50) NOT NULL,
     role VARCHAR(30) NOT NULL
 );
-```
 
-```sql
 INSERT INTO user (nom, role) VALUES
 ('Alice', 'admin'),
 ('Bob', 'gestionnaire'),
 ('Claire', 'vendeur'),
 ('David', 'vendeur'),
 ('Emma', 'lecteur');
-```
 
----
+-- -----------------------------------------------------
 
-### 🔹 Table `facture`
-
-```sql
+-- Table facture
 CREATE TABLE facture (
     id_facture INT AUTO_INCREMENT PRIMARY KEY,
     date_facture DATE NOT NULL,
@@ -80,50 +66,33 @@ CREATE TABLE facture (
     CONSTRAINT fk_facture_user
         FOREIGN KEY (id_user) REFERENCES user(id_user)
 );
-```
 
----
+-- =====================================================
+-- 3) Insertion des produits
+-- =====================================================
 
-## 3️⃣ Insertion des produits (extrait)
-
-```sql
 INSERT INTO produit (nom, stock, prix, id_type) VALUES
 ('Riz 5kg', 50, 12.50, 1),
 ('Clavier USB', 20, 15.90, 2),
 ('PC portable Dell', 5, 799.00, 3),
 ('Switch Cisco 24 ports', 6, 450.00, 4),
 ('Routeur WiFi', 12, 99.00, 5);
-```
 
-➡️ La base contient **au minimum 4 produits par type**, conformément au sujet.
+-- =====================================================
+-- 4) Requêtes SQL métier
+-- =====================================================
 
----
-
-## 4️⃣ Requêtes SQL métier
-
-### 🔹 Stock total par type (GROUP BY)
-
-```sql
+-- Stock total par type
 SELECT t.libelle, SUM(p.stock) AS stock_total
 FROM produit p
 JOIN typeProduit t ON p.id_type = t.id_type
 GROUP BY t.libelle;
-```
 
----
-
-### 🔹 Valeur totale du stock (SUM)
-
-```sql
+-- Valeur totale du stock
 SELECT SUM(stock * prix) AS valeur_stock
 FROM produit;
-```
 
----
-
-### 🔹 Produit le plus cher par type
-
-```sql
+-- Produit le plus cher par type
 SELECT t.libelle, p.nom, p.prix
 FROM produit p
 JOIN typeProduit t ON p.id_type = t.id_type
@@ -132,75 +101,39 @@ WHERE (p.id_type, p.prix) IN (
     FROM produit
     GROUP BY id_type
 );
-```
 
----
+-- =====================================================
+-- 5) Gestion des utilisateurs et privilèges
+-- =====================================================
 
-## 5️⃣ Gestion des utilisateurs et privilèges
-
-```sql
 CREATE USER 'admin_app'@'localhost' IDENTIFIED BY 'Admin@123';
 CREATE USER 'lecteur'@'localhost' IDENTIFIED BY 'Lecteur@123';
 CREATE USER 'api_user'@'127.0.0.1' IDENTIFIED BY 'Api@123';
-```
 
-```sql
 GRANT ALL PRIVILEGES ON GestionStock.* TO 'admin_app'@'localhost';
 GRANT SELECT ON GestionStock.* TO 'lecteur'@'localhost';
 GRANT SELECT, INSERT, UPDATE ON GestionStock.* TO 'api_user'@'127.0.0.1';
 FLUSH PRIVILEGES;
-```
 
----
+-- =====================================================
+-- 6) Tests de droits (doivent échouer selon l'utilisateur)
+-- =====================================================
 
-## 6️⃣ Tests de droits
-
-### 🔹 Test avec `lecteur` (doit échouer)
-
-```sql
+-- Test avec lecteur (doit échouer)
 INSERT INTO produit VALUES (NULL,'Test',1,1.00,1);
-```
 
-Résultat attendu :
-
-```
-ERROR 1142 (42000): INSERT command denied
-```
-
----
-
-### 🔹 Test avec `api_user` (doit échouer)
-
-```sql
+-- Test avec api_user (doit échouer)
 ALTER TABLE produit ADD test INT;
-```
 
-Résultat attendu :
+-- =====================================================
+-- 7) Sauvegarde et restauration (commandes système)
+-- =====================================================
 
-```
-ERROR 1142 (42000): ALTER command denied
-```
-
----
-
-## 7️⃣ Sauvegarde et restauration
-
-### 🔹 Sauvegarde
-
-```bash
+-- Sauvegarde
 mysqldump -u root -p GestionStock > gestionstock.sql
-```
 
-### 🔹 Suppression volontaire
-
-```sql
+-- Suppression volontaire
 DROP TABLE produit;
-```
 
-### 🔹 Restauration
-
-```bash
+-- Restauration
 mysql -u root -p GestionStock < gestionstock.sql
-```
-
----
