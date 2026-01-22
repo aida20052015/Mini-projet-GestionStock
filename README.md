@@ -2,7 +2,7 @@
 
 ## 🧑‍🎓 Contexte
 Ce projet a été réalisé dans le cadre du module R310 (Semestre 3 – Réseaux & Télécoms).
-Il consiste à concevoir, implémenter et sécuriser une base de données MariaDB/MySQL permettant la gestion d’un stock de produits, de leurs types, des utilisateurs et des factures.
+Il consiste à concevoir, implémenter et sécuriser une base de données MariaDB permettant la gestion d’un stock de produits, de leurs types, des utilisateurs et des factures.
 
 ---
 
@@ -175,4 +175,4 @@ Données cohérentes
 Requêtes métier
 Gestion des droits
 Sauvegarde & restauration
-Compatible MariaDB / MySQL
+Compatible MariaDB 
